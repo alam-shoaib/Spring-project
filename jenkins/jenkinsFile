@@ -1,0 +1,33 @@
+pipeline{
+    agent any
+    stages {
+  stage('compile') {
+    steps {
+        echo 'Compile stage'
+        git branch: 'main', url: 'https://github.com/alam-shoaib/jenkins.git'
+        sh script :'/opt/maven/bin/mvn compile'
+    }
+  }
+  stage('coverage') {
+  steps {
+      echo 'coverage stage'
+      sh '/opt/maven/bin/mvn -P metrics pmd:pmd'
+  }
+  post {
+  success {
+    recordIssues sourceCodeRetention: 'LAST_BUILD', tools: [pmdParser(pattern: '**/target/pom.xml')]
+  }
+}
+}
+stage('package')
+{
+    steps
+    {
+        echo 'package'
+        sh '/opt/maven/bin/mvn package'
+    }
+}
+
+}
+
+}
